@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Amanat license desk</title>
+  <link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+  <main class="screen">
+    <p class="brand">Amanat</p>
+    <h1>License desk</h1>
+    <p>This page signs a code with the private key you paste. The key is not saved and is not sent anywhere. Do not publish the key, and do not use a Baant key here.</p>
+    <label class="field" for="pem">Private key</label>
+    <textarea id="pem" rows="8" placeholder="-----BEGIN PRIVATE KEY-----"></textarea>
+    <label class="field" for="who">Who paid</label>
+    <input id="who" maxlength="80" placeholder="A name or a phone number">
+    <div class="actions"><button class="btn primary" id="issue" type="button">Make a code</button></div>
+    <label class="field" for="out">Code to send</label>
+    <textarea id="out" rows="5" readonly></textarea>
+    <p id="msg" class="fine" role="status"></p>
+  </main>
+  <script type="module">
+    import { issueCode } from "./js/desk.js";
+    const msg = document.getElementById("msg");
+    document.getElementById("issue").addEventListener("click", async () => {
+      msg.textContent = "";
+      try {
+        const code = await issueCode(document.getElementById("pem").value, document.getElementById("who").value);
+        document.getElementById("out").value = code;
+        try { await navigator.clipboard.writeText(code); msg.textContent = "Code copied."; }
+        catch { msg.textContent = "Code is ready. Copy it from the box."; }
+      } catch (err) {
+        msg.textContent = err && err.message ? err.message : "Could not sign. Check the key.";
+      }
+    });
+  </script>
+</body>
+</html>
